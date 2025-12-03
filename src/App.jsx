@@ -67,6 +67,7 @@ const App = () => {
     stack: "Java (Spring/Micronaut), Python (FastAPI/Django), Kotlin, AWS, Docker, Kubernetes.",
     contact: "Email: student@nyu.edu | LinkedIn: /in/student",
     clear: "CLEAR_ACTION",
+    gogo: "I DO!!!",
   };
 
   const projects = [
@@ -207,234 +208,212 @@ fun main() = runBlocking {
         }
     };
 
-  if (isBooting) {
-    return (
-      <div className="h-screen w-full bg-black flex flex-col items-center justify-center font-mono text-green-500 p-4">
-        <div className="w-full max-w-md space-y-2">
-          <div className="flex justify-between text-xs text-gray-500">
-            <span>BIOS v4.01</span>
-            <span>MEM: 64GB OK</span>
-          </div>
-          <div className="h-1 w-full bg-gray-900 rounded overflow-hidden">
-            <div className="h-full bg-green-500 animate-pulse w-3/4"></div>
-          </div>
+
+    // Scroll to profile section (HOOKS MUST BE TOP-LEVEL)
+    const profileRef = useRef(null);
+    const scrollToProfile = () => {
+        profileRef.current?.scrollIntoView({ behavior: 'smooth' });
+    };
+
+    if (isBooting) {
+        return (
+            <div className="h-screen w-full bg-black flex flex-col items-center justify-center font-mono text-green-500 p-4">
+                <div className="w-full max-w-md space-y-2">
+                    <div className="flex justify-between text-xs text-gray-500">
+                        <span>BIOS v4.01</span>
+                        <span>MEM: 64GB OK</span>
+                    </div>
+                    <div className="h-1 w-full bg-gray-900 rounded overflow-hidden">
+                        <div className="h-full bg-green-500 animate-pulse w-3/4"></div>
+                    </div>
                     <div className="text-xs space-y-1">
                         <p>{'>'} LOADING KERNEL MODULES...</p>
                         <p>{'>'} MOUNTING FILESYSTEM [RW]...</p>
                         <p>{'>'} STARTING REACT RENDERER...</p>
                     </div>
-        </div>
-      </div>
-    );
-  }
+                </div>
+            </div>
+        );
+    }
 
   return (
-    <div className="h-screen w-full bg-[#0a0a0a] text-gray-300 font-mono flex flex-col overflow-hidden relative selection:bg-green-900 selection:text-green-100">
-      
-      {/* Scanline Effect Overlay */}
-      <div className="scanline z-50 pointer-events-none"></div>
+    <div className="w-full bg-[#0a0a0a] text-gray-300 font-mono relative selection:bg-green-900 selection:text-green-100" style={{scrollBehavior: 'smooth', scrollSnapType: 'y mandatory'}}>
+      {/* Terminal Section (full screen height, page scrollable) */}
+      <section className="relative h-screen w-full flex flex-col bg-[#0a0a0a]" style={{scrollSnapAlign: 'start', scrollSnapStop: 'always'}}>
+        {/* Scanline Effect Overlay */}
+        <div className="scanline z-50 pointer-events-none"></div>
 
-      {/* TOP BAR (Mac/Window Style) */}
-      <div className="h-10 bg-[#111] border-b border-[#222] flex items-center justify-between px-4 z-10 select-none">
-        <div className="flex items-center space-x-2">
+        {/* TOP BAR (Mac/Window Style) */}
+        <div className="h-10 bg-[#111] border-b border-[#222] flex items-center justify-between px-4 z-10 select-none">
+          <div className="flex items-center space-x-2">
             <div className="flex space-x-2 group">
-                <div className="w-3 h-3 rounded-full bg-red-500/80 group-hover:bg-red-500 transition-colors"></div>
-                <div className="w-3 h-3 rounded-full bg-yellow-500/80 group-hover:bg-yellow-500 transition-colors"></div>
-                <div className="w-3 h-3 rounded-full bg-green-500/80 group-hover:bg-green-500 transition-colors"></div>
+              <div className="w-3 h-3 rounded-full bg-red-500/80 group-hover:bg-red-500 transition-colors"></div>
+              <div className="w-3 h-3 rounded-full bg-yellow-500/80 group-hover:bg-yellow-500 transition-colors"></div>
+              <div className="w-3 h-3 rounded-full bg-green-500/80 group-hover:bg-green-500 transition-colors"></div>
             </div>
             <span className="ml-4 text-xs text-gray-500 font-medium tracking-wide">dev@nyu-portfolio:~</span>
-        </div>
-        <div className="flex items-center space-x-2 text-gray-600">
+          </div>
+          <div className="flex items-center space-x-2 text-gray-600">
             <Minus size={14} />
             <Square size={12} />
             <X size={14} />
+          </div>
         </div>
-      </div>
 
-      {/* MAIN LAYOUT */}
-      <div className="flex-1 flex overflow-hidden">
-        
-        {/* SIDEBAR (Explorer) */}
-        <div className="w-16 md:w-64 bg-[#0d0d0d] border-r border-[#222] flex flex-col hidden md:flex">
+        {/* MAIN LAYOUT */}
+        <div className="flex-1 flex overflow-hidden">
+          {/* SIDEBAR (Explorer) */}
+          <div className="w-16 md:w-64 bg-[#0d0d0d] border-r border-[#222] flex flex-col hidden md:flex">
             <div className="p-3 text-xs font-bold text-gray-500 tracking-widest uppercase">Explorer</div>
-            
             <div className="flex-1 overflow-y-auto px-2 space-y-1">
-                <div 
-                    onClick={() => setActiveTab('terminal')}
-                    className={`flex items-center space-x-2 px-3 py-2 rounded cursor-pointer transition-all duration-200 ${activeTab === 'terminal' ? 'bg-[#1a1a1a] text-green-400 border-l-2 border-green-500' : 'hover:bg-[#111] hover:text-gray-100'}`}
-                >
-                    <Terminal size={16} />
-                    <span className="text-sm font-medium">Terminal.sh</span>
+              <div className="flex items-center space-x-2 px-3 py-2 rounded cursor-pointer transition-all duration-200 bg-[#1a1a1a] text-green-400 border-l-2 border-green-500">
+                <Terminal size={16} />
+                <span className="text-sm font-medium">Terminal.sh</span>
+              </div>
+              <div className="mt-4 mb-2 px-3 flex items-center space-x-2 text-gray-500 text-xs">
+                <ChevronRight size={12} className="rotate-90"/>
+                <span>SRC / BACKEND</span>
+              </div>
+              {projects.map(p => (
+                <div key={p.id} className="flex items-center space-x-2 px-3 py-2 rounded cursor-pointer transition-all duration-200 hover:bg-[#111] hover:text-gray-100">
+                  {p.icon}
+                  <span className="text-sm">{p.name}</span>
                 </div>
-
-                <div className="mt-4 mb-2 px-3 flex items-center space-x-2 text-gray-500 text-xs">
-                    <ChevronRight size={12} className="rotate-90"/>
-                    <span>SRC / BACKEND</span>
-                </div>
-
-                {projects.map(p => (
-                    <div 
-                        key={p.id}
-                        onClick={() => setActiveTab(p.id)}
-                        className={`flex items-center space-x-2 px-3 py-2 rounded cursor-pointer transition-all duration-200 ${activeTab === p.id ? 'bg-[#1a1a1a] text-blue-400 border-l-2 border-blue-500' : 'hover:bg-[#111] hover:text-gray-100'}`}
-                    >
-                        {p.icon}
-                        <span className="text-sm">{p.name}</span>
-                    </div>
-                ))}
-
-                <div className="mt-6 border-t border-[#222] pt-4 space-y-2">
-                    <a href="#" className="flex items-center space-x-2 px-3 py-2 text-gray-500 hover:text-white transition-colors">
-                        <Github size={16} />
-                        <span className="text-xs">GitHub Repo</span>
-                    </a>
-                    <a href="#" className="flex items-center space-x-2 px-3 py-2 text-gray-500 hover:text-white transition-colors">
-                        <Linkedin size={16} />
-                        <span className="text-xs">LinkedIn Profile</span>
-                    </a>
-                </div>
+              ))}
+              <div className="mt-6 border-t border-[#222] pt-4 space-y-2">
+                <a href="#" className="flex items-center space-x-2 px-3 py-2 text-gray-500 hover:text-white transition-colors">
+                  <Github size={16} />
+                  <span className="text-xs">GitHub Repo</span>
+                </a>
+                <a href="#" className="flex items-center space-x-2 px-3 py-2 text-gray-500 hover:text-white transition-colors">
+                  <Linkedin size={16} />
+                  <span className="text-xs">LinkedIn Profile</span>
+                </a>
+              </div>
             </div>
-        </div>
+          </div>
 
-        {/* EDITOR / TERMINAL AREA */}
-        <div className="flex-1 flex flex-col bg-[#0a0a0a] relative">
-            
+          {/* EDITOR / TERMINAL AREA */}
+          <div className="flex-1 flex flex-col bg-[#0a0a0a] relative">
             {/* Tabs */}
             <div className="flex bg-[#0d0d0d] border-b border-[#222] overflow-x-auto no-scrollbar">
-                <div 
-                    onClick={() => setActiveTab('terminal')}
-                    className={`flex items-center space-x-2 px-6 py-2 text-xs cursor-pointer border-r border-[#222] ${activeTab === 'terminal' ? 'bg-[#0a0a0a] text-green-400 border-t-2 border-t-green-500' : 'text-gray-500 hover:bg-[#111]'}`}
-                >
-                    <Terminal size={12} />
-                    <span>Terminal</span>
-                </div>
-                {projects.map(p => (
-                    <div 
-                        key={p.id}
-                        onClick={() => setActiveTab(p.id)}
-                        className={`flex items-center space-x-2 px-6 py-2 text-xs cursor-pointer border-r border-[#222] ${activeTab === p.id ? 'bg-[#0a0a0a] text-blue-400 border-t-2 border-t-blue-500' : 'text-gray-500 hover:bg-[#111]'}`}
-                    >
-                        <Code size={12} />
-                        <span>{p.name}</span>
-                    </div>
-                ))}
+              <div className="flex items-center space-x-2 px-6 py-2 text-xs cursor-pointer border-r border-[#222] bg-[#0a0a0a] text-green-400 border-t-2 border-t-green-500">
+                <Terminal size={12} />
+                <span>Terminal</span>
+              </div>
             </div>
 
-            {/* Content */}
-            <div className="flex-1 p-6 overflow-y-auto" onClick={focusInput}>
-                
-                {/* TERMINAL VIEW */}
-                {activeTab === 'terminal' && (
-                    <div className="max-w-3xl mx-auto font-mono text-sm space-y-2 pb-20">
-                        {history.map((line, i) => (
-                            <div key={i} className="animate-fade-in break-words flex">
-                                {line.type === 'user' && <span className="text-green-500 font-bold mr-2">➜  ~</span>}
-                                {line.type === 'system' && <span className="text-blue-500 mr-2">[SYS]</span>}
-                                {line.type === 'success' && <span className="text-green-400 mr-2">✔</span>}
-                                {line.type === 'error' && <span className="text-red-500 mr-2">✖</span>}
-                                {line.type === 'info' && <span className="text-yellow-500 mr-2">ℹ</span>}
-                                
-                                <div className={`flex-1 ${line.type === 'user' ? 'text-gray-100' : 'text-gray-400'}`}>
-                                    {line.type === 'list' ? (
-                                             <div className="grid grid-cols-2 gap-2 mt-1">
-                                                {line.content.map((cmd, idx) => (
-                                                    <button
-                                                        key={idx}
-                                                        type="button"
-                                                        onClick={() => { setInput(cmd); inputRef.current?.focus(); }}
-                                                        className="bg-[#111] p-2 rounded border border-[#222] text-green-400 text-xs hover:border-green-900 transition-colors text-left"
-                                                    >
-                                                        {cmd}
-                                                    </button>
-                                                ))}
-                                             </div>
-                                        ) : (
-                                            <span className={line.type === 'user' ? 'text-white' : ''}>{line.content}</span>
-                                        )}
-                                </div>
-                            </div>
-                        ))}
-                        
-                        {/* Input Area */}
-                        <div className="flex items-center mt-4 group">
-                            <span className="text-green-500 font-bold mr-2 text-glow">➜  ~</span>
-                            <input 
-                                ref={inputRef}
-                                type="text" 
-                                value={input}
-                                onChange={(e) => setInput(e.target.value)}
-                                onKeyDown={handleKeyDown}
-                                className="bg-transparent outline-none text-gray-100 w-full font-mono placeholder-gray-700 caret-green-500"
-                                placeholder="Type 'help' to start..."
-                                autoFocus
-                            />
-                        </div>
-                        <div ref={bottomRef} />
-                    </div>
-                )}
-
-                {/* CODE VIEW */}
-                {projects.map(p => activeTab === p.id && (
-                    <div key={p.id} className="max-w-4xl mx-auto animate-fade-in">
-                        <div className="mb-6 flex items-start justify-between">
-                            <div>
-                                <h1 className="text-2xl font-bold text-white mb-2 flex items-center gap-2">
-                                    {p.name}
-                                    <span className="text-xs font-normal px-2 py-0.5 rounded-full border border-gray-700 text-gray-500">READ ONLY</span>
-                                </h1>
-                                <p className="text-gray-400 text-sm">{p.desc}</p>
-                            </div>
-                            <button 
-                                type="button"
-                                onClick={() => {
-                                    setActiveTab('terminal');
-                                    processCommand(`run ${p.lang}`);
-                                }}
-                                className="bg-green-900/30 text-green-400 hover:bg-green-900/50 hover:text-green-200 px-4 py-2 rounded text-xs font-bold border border-green-900 transition-all flex items-center gap-2"
+            {/* Content (Terminal Scroll Container) */}
+            <div className="flex-1 overflow-y-auto p-6" onClick={focusInput} style={{fontFamily: 'Consolas, Menlo, monospace'}}>
+              <div className="max-w-3xl mx-auto font-mono text-sm space-y-2 pb-20">
+                {history.map((line, i) => (
+                  <div key={i} className="animate-fade-in break-words flex">
+                    {line.type === 'user' && <span className="text-green-500 font-bold mr-2">➜  ~</span>}
+                    {line.type === 'system' && <span className="text-blue-500 mr-2">[SYS]</span>}
+                    {line.type === 'success' && <span className="text-green-400 mr-2">✔</span>}
+                    {line.type === 'error' && <span className="text-red-500 mr-2">✖</span>}
+                    {line.type === 'info' && <span className="text-yellow-500 mr-2">ℹ</span>}
+                    <div className={`flex-1 ${line.type === 'user' ? 'text-gray-100' : 'text-gray-400'}`}>
+                      {line.type === 'list' ? (
+                        <div className="grid grid-cols-2 gap-2 mt-1">
+                          {line.content.map((cmd, idx) => (
+                            <button
+                              key={idx}
+                              type="button"
+                              onClick={() => { setInput(cmd); inputRef.current?.focus(); }}
+                              className="bg-[#111] p-2 rounded border border-[#222] text-green-400 text-xs hover:border-green-900 transition-colors text-left"
                             >
-                                <Play size={14} /> RUN BUILD
+                              {cmd}
                             </button>
+                          ))}
                         </div>
-
-                        <div className="bg-[#0d0d0d] border border-[#222] rounded-lg p-4 relative overflow-hidden group">
-                            <div className="absolute top-0 right-0 p-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                                <span className="text-xs text-gray-600">UTF-8</span>
-                            </div>
-                            <pre className="font-mono text-sm text-blue-300 leading-relaxed overflow-x-auto">
-                                <code>{p.code}</code>
-                            </pre>
-                        </div>
+                      ) : (
+                        <span className={line.type === 'user' ? 'text-white' : ''}>{line.content}</span>
+                      )}
                     </div>
+                  </div>
                 ))}
-
+                {/* Input Area */}
+                <div className="flex items-center mt-4 group">
+                  <span className="text-green-500 font-bold mr-2 text-glow">➜  ~</span>
+                  <input
+                    ref={inputRef}
+                    type="text"
+                    value={input}
+                    onChange={(e) => setInput(e.target.value)}
+                    onKeyDown={handleKeyDown}
+                    className="bg-transparent outline-none text-gray-100 w-full font-mono placeholder-gray-700 caret-green-500"
+                    placeholder="Type 'help' to start..."
+                    autoFocus
+                  />
+                </div>
+                <div ref={bottomRef} />
+              </div>
             </div>
 
             {/* STATUS BAR */}
             <div className="h-6 bg-[#007acc] flex items-center justify-between px-3 text-[10px] text-white select-none z-20">
-                <div className="flex items-center space-x-4">
-                    <div className="flex items-center space-x-1">
-                        <Wifi size={10} />
-                        <span>REMOTE: NYC_SERVER_01</span>
-                    </div>
-                    <div className="flex items-center space-x-1">
-                        <User size={10} />
-                        <span>GUEST SESSION</span>
-                    </div>
+              <div className="flex items-center space-x-4">
+                <div className="flex items-center space-x-1">
+                  <Wifi size={10} />
+                  <span>REMOTE: NYC_SERVER_01</span>
                 </div>
-                <div className="flex items-center space-x-4">
-                    <div className="flex items-center space-x-1">
-                        <span>Ln 1, Col 1</span>
-                    </div>
-                    <div className="flex items-center space-x-1">
-                        <Globe size={10} />
-                        <span>UTF-8</span>
-                    </div>
-                    <span>{time}</span>
+                <div className="flex items-center space-x-1">
+                  <User size={10} />
+                  <span>GUEST SESSION</span>
                 </div>
+              </div>
+              <div className="flex items-center space-x-4">
+                <div className="flex items-center space-x-1">
+                  <span>Ln 1, Col 1</span>
+                </div>
+                <div className="flex items-center space-x-1">
+                  <Globe size={10} />
+                  <span>UTF-8</span>
+                </div>
+                <span>{time}</span>
+              </div>
             </div>
-
+          </div>
         </div>
-      </div>
+      </section>
+
+      {/* Profile Section (scrollable on page with enhanced background) */}
+      <section ref={profileRef} className="w-full min-h-screen flex flex-col items-center justify-center px-4 py-20 relative overflow-hidden" style={{background: 'linear-gradient(135deg, #0a0a0a 0%, #1a1a2e 50%, #16213e 100%)', scrollSnapAlign: 'start', scrollSnapStop: 'always'}}>
+        {/* Background Animated Elements */}
+        <div className="absolute inset-0 opacity-30 pointer-events-none">
+          <div className="absolute top-0 right-0 w-96 h-96 bg-green-500 rounded-full blur-3xl opacity-10"></div>
+          <div className="absolute bottom-0 left-0 w-80 h-80 bg-blue-500 rounded-full blur-3xl opacity-10"></div>
+        </div>
+        <div className="max-w-4xl w-full bg-[#18181b] rounded-2xl shadow-2xl border border-[#222] p-0 md:p-8 flex flex-col md:flex-row items-center md:items-stretch animate-fade-in-up relative z-10">
+          {/* Left: Text */}
+          <div className="flex-1 flex flex-col justify-center p-8">
+            <h1 className="text-3xl font-bold text-white mb-2">Bhavesh Gupta</h1>
+            <h2 className="text-lg text-green-400 mb-4">Software Engineer & Terminal Enthusiast</h2>
+            <p className="text-gray-300 mb-6">
+              Welcome to my interactive portfolio! I love building high-performance systems, exploring distributed computing, and creating beautiful developer experiences.<br />
+              <span className="text-green-400">Java</span>, <span className="text-blue-400">Python</span>, <span className="text-purple-400">Kotlin</span>, <span className="text-yellow-300">AWS</span>, <span className="text-pink-400">Docker</span>, <span className="text-cyan-400">Kubernetes</span>
+            </p>
+            <div className="flex flex-wrap gap-4 mb-6">
+              <a href="#" className="flex items-center gap-2 px-4 py-2 rounded bg-green-900/30 text-green-400 border border-green-900 hover:bg-green-900/50 hover:text-green-200 font-bold text-xs transition"><Github size={16}/> GitHub</a>
+              <a href="#" className="flex items-center gap-2 px-4 py-2 rounded bg-blue-900/30 text-blue-400 border border-blue-900 hover:bg-blue-900/50 hover:text-blue-200 font-bold text-xs transition"><Linkedin size={16}/> LinkedIn</a>
+              <a href="mailto:student@nyu.edu" className="flex items-center gap-2 px-4 py-2 rounded bg-gray-900/30 text-gray-300 border border-gray-900 hover:bg-gray-900/50 hover:text-white font-bold text-xs transition"><Mail size={16}/> Email</a>
+            </div>
+            <div className="flex flex-wrap gap-2">
+              <span className="px-3 py-1 rounded-full bg-[#222] text-xs text-green-400 border border-green-900">Distributed Systems</span>
+              <span className="px-3 py-1 rounded-full bg-[#222] text-xs text-blue-400 border border-blue-900">Cloud</span>
+              <span className="px-3 py-1 rounded-full bg-[#222] text-xs text-yellow-300 border border-yellow-900">Machine Learning</span>
+              <span className="px-3 py-1 rounded-full bg-[#222] text-xs text-purple-400 border border-purple-900">Kotlin</span>
+              <span className="px-3 py-1 rounded-full bg-[#222] text-xs text-pink-400 border border-pink-900">DevOps</span>
+              <span className="px-3 py-1 rounded-full bg-[#222] text-xs text-cyan-400 border border-cyan-900">Open Source</span>
+            </div>
+          </div>
+          {/* Right: Photo/Logo */}
+          <div className="flex items-center justify-center p-8">
+            <img src="https://avatars.githubusercontent.com/u/9919?v=4" alt="Profile" className="w-48 h-48 rounded-full border-4 border-green-500 shadow-lg" />
+          </div>
+        </div>
+      </section>
     </div>
   );
 };
