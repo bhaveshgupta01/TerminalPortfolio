@@ -62,7 +62,8 @@ const App = () => {
     },
     contact: "Email: bg2896@nyu.edu | LinkedIn: /in/bhaveshgupta01 | GitHub: @bhaveshgupta01",
     clear: "CLEAR_ACTION",
-    gui: "SCROLL_ACTION"
+    gui: "SCROLL_ACTION",
+    gogo: "I DO!!"
   };
 
   const projects = [
