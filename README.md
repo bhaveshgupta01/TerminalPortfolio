@@ -4,7 +4,7 @@
 > A retro-futuristic personal portfolio blending Command Line aesthetics with modern, responsive UX. 
 > Built with **React**, **Tailwind CSS**, and **Vite**.
 
-![Project Screenshot](<img width="1470" height="831" alt="Screenshot" src="https://github.com/user-attachments/assets/db6255e3-f927-4c70-87b9-0235462eb84f" />) 
+<img width="1470" height="831" alt="Project Screenshot" src="https://github.com/user-attachments/assets/db6255e3-f927-4c70-87b9-0235462eb84f" />
 
 ## ✨ Key Features
 
