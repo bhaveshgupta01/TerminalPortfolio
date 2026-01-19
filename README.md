@@ -1,16 +1,83 @@
-# React + Vite
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+# 🖥️ Terminal Portfolio v2
 
-Currently, two official plugins are available:
+> A retro-futuristic personal portfolio blending Command Line aesthetics with modern, responsive UX. 
+> Built with **React**, **Tailwind CSS**, and **Vite**.
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) (or [oxc](https://oxc.rs) when used in [rolldown-vite](https://vite.dev/guide/rolldown)) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+![Project Screenshot](<img width="1470" height="831" alt="Screenshot" src="https://github.com/user-attachments/assets/db6255e3-f927-4c70-87b9-0235462eb84f" />) 
 
-## React Compiler
+## ✨ Key Features
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+- **🎨 Hybrid Design:** Combines a developer-centric "Terminal" theme with a visual "Netflix-style" gallery for creative work.
+- **📱 Fully Responsive:** Optimized for all devices using Tailwind's mobile-first utility classes.
+- **🧩 Config-Driven Content:** All project data, skills, and experience are managed via a single `portfolio.js` file, making updates instant.
+- **⚡ High Performance:** Built on Vite for lightning-fast HMR and optimized production builds.
+- **🖼️ Custom Components:**
 
-## Expanding the ESLint configuration
+  - **Design Carousel:** Horizontal snap-scrolling for design assets.
+  - **Project Modals:** Detailed pop-ups with "Click-to-View" functionality.
+  - **Lightbox:** Full-screen image viewer for design portfolios.
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+## 🛠️ Tech Stack
+
+- **Frontend:** React.js, Vite
+- **Styling:** Tailwind CSS
+- **Icons:** Lucide React
+- **Routing:** React Router DOM
+- **Deployment:** Vercel (Recommended)
+
+## 🚀 Getting Started
+
+### Prerequisites
+Make sure you have Node.js installed.
+
+### Installation
+
+1. **Clone the repo**
+```bash
+git clone [https://github.com/bhaveshgupta01/TerminalPortfolio.git](https://github.com/bhaveshgupta01/TerminalPortfolio.git)
+cd TerminalPortfolio
+```
+
+2. **Install dependencies**
+```bash
+npm install
+
+```
+
+
+3. **Start the development server**
+```bash
+npm run dev
+
+```
+
+
+
+## 📂 Project Structure
+
+```
+src/
+├── components/    # Reusable UI components (Cards, Modals)
+├── data/          # CENTRAL DATA SOURCE (portfolio.js, designs.js)
+├── pages/         # Page Views (Home, Design, Publications)
+├── assets/        # Static images
+└── App.jsx        # Main Router Logic
+
+```
+
+## 🔮 Future Roadmap (Agentic AI)
+
+The next phase of this project involves integrating a **Python (FastAPI)** backend to enable **Agentic AI** capabilities:
+
+* [ ] **LangGraph Orchestration:** An AI agent that navigates the website based on user queries.
+* [ ] **RAG (Retrieval Augmented Generation):** Chatbot that answers questions about my resume using vector search.
+* [ ] **Voice Command Interface:** Navigate the terminal using voice.
+
+## 🤝 Contributing
+
+Contributions are welcome! If you have suggestions for the "Agentic AI" phase, feel free to open an issue.
+
+## 📄 License
+
+This project is open source and available under the [MIT License](https://www.google.com/search?q=LICENSE).
