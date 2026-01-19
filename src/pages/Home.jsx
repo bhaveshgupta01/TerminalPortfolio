@@ -20,6 +20,7 @@ const Home = () => {
   const heroRef = useRef(null);
   const aboutRef = useRef(null);
   const experienceRef = useRef(null);
+  const publicationRef = useRef(null);
   const skillsRef = useRef(null);
   const projectsRef = useRef(null);
   const leadershipRef = useRef(null);
@@ -42,6 +43,7 @@ const Home = () => {
     { label: 'Tech Stack', cmd: 'skills', icon: <Cpu size={14}/> },
     { label: 'Design Assets', cmd: 'design', icon: <Palette size={14}/> },
     { label: 'Contact Info', cmd: 'contact', icon: <Mail size={14}/> },
+    { label: 'Publications', cmd: 'publications', icon: <BookOpen size={14}/> },
     { label: 'Clear Chat', cmd: 'clear', icon: <X size={14}/> },
   ];
 
@@ -92,6 +94,9 @@ const Home = () => {
       } else if (lower.includes('contact') || lower.includes('email')) {
         response.text = "Scrolling to Contact Info...";
         contactRef.current?.scrollIntoView({ behavior: 'smooth' });
+      } else if (lower.includes('publication') || lower.includes('paper')) {
+        response.text = "Opening Publication Archives...";
+        publicationRef.current?.scrollIntoView({ behavior: 'smooth' });
       } else if (lower.includes('gogo')) {
         response.text = "I do too <3";
       }else {
@@ -119,9 +124,11 @@ const Home = () => {
           <SidebarItem icon={<Briefcase size={18}/>} label="Experience" onClick={() => experienceRef.current?.scrollIntoView({behavior:'smooth'})} />
           <SidebarItem icon={<Cpu size={18}/>} label="Tech Stack" onClick={() => skillsRef.current?.scrollIntoView({behavior:'smooth'})} />
           <SidebarItem icon={<Folder size={18}/>} label="Projects" onClick={() => projectsRef.current?.scrollIntoView({behavior:'smooth'})} />
+          <SidebarItem icon={<BookOpen size={18}/>} label="Publications" onClick={() => publicationRef.current?.scrollIntoView({behavior:'smooth'})} />
           <SidebarItem icon={<Award size={18}/>} label="Leadership" onClick={() => leadershipRef.current?.scrollIntoView({behavior:'smooth'})} />
           <SidebarItem icon={<Palette size={18}/>} label="Designs" onClick={() => navigate('/design')} />
           <SidebarItem icon={<Mail size={18}/>} label="Contact" onClick={() => contactRef.current?.scrollIntoView({behavior:'smooth'})} />
+
         </nav>
       </aside>
 
@@ -173,7 +180,7 @@ const Home = () => {
              <div ref={leadershipRef}><LeadershipSection colors={colors} /></div>
 
              {/* PUBLICATION SECTION */}
-            <div ref={experienceRef}><PublicationSection colors={colors} /></div>
+            <div ref={publicationRef}><PublicationSection colors={colors} /></div>
 
             {/* CONTACT SECTION */}
             <div ref={contactRef}><ContactSection colors={colors} /></div>
