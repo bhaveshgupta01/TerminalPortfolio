@@ -18,4 +18,3 @@ ddgs>=9.10.0
 duckduckgo-search==6.4.2
 pypdf==5.1.0
 docx2txt==0.8
-unstructured==0.16.11
