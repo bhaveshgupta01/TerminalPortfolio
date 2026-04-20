@@ -8,6 +8,11 @@ import React from 'react';
  *     title: string,
  *     data:  {...} }
  */
+// Gemini sometimes emits `data: [...]` directly instead of `data: { items: [...] }`.
+// Accept either shape.
+const asItems = (data) =>
+  Array.isArray(data) ? data : Array.isArray(data?.items) ? data.items : [];
+
 const DynamicComponent = ({ component }) => {
   if (!component || !component.type) return null;
   const { type, title, data = {} } = component;
@@ -28,7 +33,7 @@ const DynamicComponent = ({ component }) => {
       return (
         <Shell>
           <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
-            {(data.items || []).map((it, i) => (
+            {asItems(data).map((it, i) => (
               <div key={i} className="bg-surface rounded-lg p-3 border border-subtle/15">
                 <div className="text-lg md:text-xl font-bold text-accent">{it.value}</div>
                 <div className="text-xs text-muted font-medium mt-0.5">{it.label}</div>
@@ -43,7 +48,7 @@ const DynamicComponent = ({ component }) => {
       return (
         <Shell>
           <ol className="relative border-l border-subtle/15 ml-2 space-y-4">
-            {(data.items || []).map((it, i) => (
+            {asItems(data).map((it, i) => (
               <li key={i} className="pl-4">
                 <div className="absolute -left-1.5 w-3 h-3 bg-accent rounded-full border-2 border-surface-2"></div>
                 <div className="text-[10px] uppercase tracking-wider text-accent-2 font-bold">{it.date}</div>
@@ -59,7 +64,7 @@ const DynamicComponent = ({ component }) => {
       return (
         <Shell>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-            {(data.items || []).map((it, i) => (
+            {asItems(data).map((it, i) => (
               <div key={i} className="bg-surface rounded-lg p-3 border border-subtle/15">
                 <div className="text-sm font-bold text-ink mb-1">{it.title}</div>
                 <div className="text-xs text-muted leading-relaxed">{it.desc}</div>
@@ -104,7 +109,7 @@ const DynamicComponent = ({ component }) => {
       return (
         <Shell>
           <ul className="space-y-1.5">
-            {(data.items || []).map((it, i) => (
+            {asItems(data).map((it, i) => (
               <li key={i} className="text-xs text-ink flex gap-2">
                 <span className="text-accent shrink-0">▸</span>
                 <span className="leading-relaxed">{it}</span>

@@ -233,7 +233,18 @@ Every profile chunk returned by search_profile is tagged with "[role=X]". When y
 You may call tools multiple times if the first result is insufficient. Prefer FEWER, more specific queries over many vague ones.
 
 FINAL RESPONSE FORMAT
-Your LAST message (after all tool calls resolve) MUST be STRICT JSON, no markdown fences, no prose before/after:
+Your LAST message (after all tool calls resolve) MUST be STRICT JSON ONLY — no prose before it, no prose after it, no markdown fences, no explanation. Just the JSON object. Example of INVALID output (don't do this):
+
+    Here's what I think: { "answer": "...", ... }    ← WRONG, prose before
+    ```json
+    { "answer": "...", ... }
+    ```                                              ← WRONG, fences
+
+Example of VALID output:
+
+    { "answer": "...", "scroll_to": null, "component": null, "source": "profile" }
+
+Strict shape:
 
 {
   "answer": "first-person conversational reply — 2-5 sentences typically, longer only if the question demands depth",
@@ -295,7 +306,11 @@ app = workflow.compile(checkpointer=memory)
 # --------------------------------------------------------------------------- #
 
 def parse_output(raw: str | list | None) -> dict:
-    """Parse the agent's final JSON message into a validated response dict."""
+    """Parse the agent's final JSON message into a validated response dict.
+
+    Gemini sometimes emits prose before the JSON, or wraps JSON in ``` fences,
+    or mixes both. Try several strategies to extract the JSON object cleanly.
+    """
     if raw is None:
         text = ""
     elif isinstance(raw, list):
@@ -312,9 +327,24 @@ def parse_output(raw: str | list | None) -> dict:
         if text.lower().startswith("json"):
             text = text[4:].strip()
 
+    data = None
+    # Strategy 1 — whole text is JSON
     try:
         data = json.loads(text)
     except Exception:
+        pass
+
+    # Strategy 2 — pull the largest balanced {...} block from anywhere in text
+    if data is None:
+        first = text.find("{")
+        last = text.rfind("}")
+        if first != -1 and last > first:
+            try:
+                data = json.loads(text[first:last + 1])
+            except Exception:
+                pass
+
+    if not isinstance(data, dict):
         return {
             "answer": text or "I'm not sure how to answer that.",
             "scroll_to": None,
