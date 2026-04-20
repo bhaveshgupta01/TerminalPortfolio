@@ -4,15 +4,25 @@ export default {
     "./index.html",
     "./src/**/*.{js,ts,jsx,tsx}",
   ],
+  darkMode: 'class',
   theme: {
     extend: {
       colors: {
-        'neon-orange': '#FF6B35',
-        'neon-yellow': '#F7B801',
-        'neon-green': '#00FF41',
-        'neon-red': '#FF073A',
-        'neon-blue': '#00D9FF',
-        'neon-purple': '#B026FF',
+        // Semantic design tokens — values come from CSS variables in index.css.
+        // Both <alpha-value> and plain usage work (Tailwind 3.x).
+        app:         'rgb(var(--color-bg) / <alpha-value>)',
+        surface:     'rgb(var(--color-surface) / <alpha-value>)',
+        'surface-2': 'rgb(var(--color-surface-2) / <alpha-value>)',
+        'surface-3': 'rgb(var(--color-surface-3) / <alpha-value>)',
+
+        ink:      'rgb(var(--color-text) / <alpha-value>)',
+        muted:    'rgb(var(--color-text-muted) / <alpha-value>)',
+        faint:    'rgb(var(--color-text-faint) / <alpha-value>)',
+
+        accent:     'rgb(var(--color-accent) / <alpha-value>)',
+        'accent-2': 'rgb(var(--color-accent-2) / <alpha-value>)',
+
+        subtle: 'rgb(var(--color-border-rgb) / <alpha-value>)',
       },
       fontFamily: {
         'mono': ['JetBrains Mono', 'Consolas', 'monospace'],
