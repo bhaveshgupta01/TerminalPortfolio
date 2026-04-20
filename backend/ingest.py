@@ -141,6 +141,35 @@ def main(reset: bool) -> None:
     print(f"   by role: {role_counts}")
 
 
+def ensure_ingested() -> int:
+    """Idempotent ingest — populates the DB only if empty.
+
+    Safe to call on server startup: returns fast if the collection already has
+    chunks, runs the full ingest otherwise. Returns the chunk count.
+    """
+    embeddings = GoogleGenerativeAIEmbeddings(model=EMBEDDING_MODEL)
+    vs = Chroma(
+        collection_name=COLLECTION_NAME,
+        embedding_function=embeddings,
+        persist_directory=str(CHROMA_PATH),
+    )
+    try:
+        count = vs._collection.count()
+    except Exception:
+        count = 0
+    if count > 0:
+        print(f"[ingest] ChromaDB already has {count} chunks — skipping.")
+        return count
+    print("[ingest] ChromaDB empty — running initial ingest from knowledge/")
+    main(reset=False)
+    try:
+        count = vs._collection.count()
+    except Exception:
+        count = 0
+    print(f"[ingest] ✅ initial ingest complete — {count} chunks available")
+    return count
+
+
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument("--reset", action="store_true", help="wipe and rebuild")

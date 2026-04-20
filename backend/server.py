@@ -11,10 +11,11 @@ from __future__ import annotations
 
 import os
 import uuid
+from contextlib import asynccontextmanager
 from typing import Optional
 
 from dotenv import load_dotenv
-from fastapi import FastAPI, HTTPException
+from fastapi import FastAPI, Header, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel, Field
 
@@ -29,7 +30,22 @@ ALLOWED_ORIGINS = [
     ).split(",") if o.strip()
 ]
 
-api = FastAPI(title="Bhavesh Portfolio Agent", version="2.0.0")
+# Optional secret to gate the manual re-ingest endpoint.
+INGEST_SECRET = os.getenv("INGEST_SECRET", "")
+
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    """On boot: auto-populate ChromaDB if empty (no manual shell needed)."""
+    try:
+        from ingest import ensure_ingested
+        ensure_ingested()
+    except Exception as e:
+        print(f"[startup] auto-ingest failed (server will still start): {e}")
+    yield
+
+
+api = FastAPI(title="Bhavesh Portfolio Agent", version="2.1.0", lifespan=lifespan)
 
 api.add_middleware(
     CORSMiddleware,
@@ -53,6 +69,21 @@ class ChatResponse(BaseModel):
 @api.get("/health")
 def health() -> dict:
     return {"status": "ok"}
+
+
+@api.post("/admin/ingest")
+def admin_ingest(x_ingest_secret: str = Header(default="")) -> dict:
+    """Manual re-ingest endpoint — useful when knowledge/ changes without a
+    full redeploy. Protected by the INGEST_SECRET env var; returns 401 if
+    missing/wrong."""
+    if not INGEST_SECRET or x_ingest_secret != INGEST_SECRET:
+        raise HTTPException(status_code=401, detail="unauthorized")
+    try:
+        from ingest import main as run_ingest
+        run_ingest(reset=True)
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"ingest failed: {e}")
+    return {"status": "reingested"}
 
 @api.post("/chat", response_model=ChatResponse)
 def chat(req: ChatRequest) -> ChatResponse:
