@@ -81,29 +81,31 @@ const DynamicComponent = ({ component }) => {
         </Shell>
       );
 
-    case 'comparison':
+    case 'comparison': {
+      // Agent sometimes emits { data: { left, right } }, sometimes { left, right }
+      // at the component top level. Accept either.
+      const left  = data?.left  ?? component.left  ?? {};
+      const right = data?.right ?? component.right ?? {};
       return (
         <Shell>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-            {['left', 'right'].map((side) => {
-              const block = data[side] || {};
-              return (
-                <div key={side} className="bg-surface rounded-lg p-3 border border-subtle/15">
-                  <div className="text-sm font-bold text-ink mb-2">{block.title}</div>
-                  <ul className="space-y-1">
-                    {(block.points || []).map((p, i) => (
-                      <li key={i} className="text-xs text-muted flex gap-2">
-                        <span className="text-accent shrink-0">•</span>
-                        <span className="leading-relaxed">{p}</span>
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-              );
-            })}
+            {[['left', left], ['right', right]].map(([side, block]) => (
+              <div key={side} className="bg-surface rounded-lg p-3 border border-subtle/15">
+                <div className="text-sm font-bold text-ink mb-2">{block.title}</div>
+                <ul className="space-y-1">
+                  {(block.points || []).map((p, i) => (
+                    <li key={i} className="text-xs text-muted flex gap-2">
+                      <span className="text-accent shrink-0">•</span>
+                      <span className="leading-relaxed">{p}</span>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            ))}
           </div>
         </Shell>
       );
+    }
 
     case 'list':
       return (
