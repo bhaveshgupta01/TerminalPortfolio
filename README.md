@@ -196,6 +196,14 @@ The hero QR code isn't decorative. Click → downloads a proper RFC-6350 `.vcf` 
 
 ---
 
+## Versioning
+
+Current stable baseline: `v0.1.0`
+
+Rollback and release workflow: [docs/versioning.md](docs/versioning.md)
+
+---
+
 ## Getting started
 
 ### Prereqs
