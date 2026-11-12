@@ -1,0 +1,10 @@
+{
+  "updated": "Updated this week",
+  "lines": [
+    { "icon": "▲", "text": "Shipping the wallet-style v2 of this portfolio — drawer cards, metallic surfaces, streaming agent." },
+    { "icon": "◆", "text": "MSCS coursework at NYU Courant — Cloud, Distributed Systems." },
+    { "icon": "●", "text": "Graduate Assistant work at NYU Abu Dhabi's New York Office." },
+    { "icon": "◇", "text": "Tinkering with VoiceGraph — voice-first GraphRAG over a 569-node graph." },
+    { "icon": "✦", "text": "Open to Summer 2026 internships and roles in applied AI / agentic systems." }
+  ]
+}

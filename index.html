@@ -2,14 +2,34 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <link rel="icon" type="image/svg+xml" href="/logo.svg" />
+    <link rel="icon" type="image/svg+xml" href="/mark.svg" />
     <link rel="apple-touch-icon" href="/logo.png" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta name="description" content="Bhavesh Gupta - MSCS Student at NYU Courant Institute. AI Enthusiast, Systems Engineer, Software Developer." />
-    <title>Bhavesh Gupta | Portfolio</title>
+    <meta name="description" content="Bhavesh Gupta. MS Computer Science at NYU Courant. I build AI systems end to end: Android, backend and agents." />
+    <title>Bhavesh Gupta</title>
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content="Bhavesh Gupta" />
+    <meta property="og:description" content="MS Computer Science at NYU Courant. I build AI systems end to end: Android, backend and agents." />
+    <meta property="og:url" content="https://libralpanda.vercel.app/" />
+    <meta property="og:image" content="https://libralpanda.vercel.app/og.png" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <script>
+      // Set the theme (and the home page's background) before first paint, so
+      // the page never flashes the wrong colours.
+      (function () {
+        var root = document.documentElement;
+        var saved = null;
+        try { saved = localStorage.getItem('theme'); } catch (e) {}
+        var theme = saved === 'light' || saved === 'dark'
+          ? saved
+          : (window.matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark');
+        root.classList.add(theme);
+        if (location.pathname === '/') root.classList.add('story-page');
+      })();
+    </script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400..800&family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
   </head>
   <body>
     <div id="root"></div>

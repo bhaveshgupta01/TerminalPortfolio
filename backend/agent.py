@@ -18,9 +18,10 @@ question. Its FINAL message after all tool calls is strict JSON:
 
 from __future__ import annotations
 
+import asyncio
 import json
 import os
-from typing import Annotated, Literal, Optional, TypedDict
+from typing import Annotated, AsyncIterator, Literal, Optional, TypedDict
 
 from dotenv import load_dotenv
 
@@ -47,10 +48,25 @@ COLLECTION_NAME = "portfolio-profile"
 
 SECTION_IDS = {
     "about", "experience", "skills", "projects",
-    "publications", "leadership", "contact", "journey",
+    "publications", "leadership", "contact", "journey", "design",
 }
 COMPONENT_TYPES = {
     "stats", "timeline", "cards", "comparison", "list", "code", "quote",
+}
+
+# Valid sub-section anchors per card. The lab UI scrolls to these and
+# flashes a highlight ring. Sending an unknown sectionId simply falls
+# back to whole-card focus (still safe for older UIs that ignore it).
+SUBSECTION_IDS: dict[str, set[str]] = {
+    "experience":   {"nyuad", "tcs", "synopsys", "esec"},
+    "projects":     {"voicegraph", "gybuddy", "signalflow", "virtual-war-room", "pulse-nyc", "agentic-rag"},
+    "leadership":   {"gdsc", "infoxpression", "hackathons"},
+    "skills":       {"languages", "ai-ml", "mobile", "backend", "frontend", "infra"},
+    "journey":      {"android", "ml", "agentic"},
+    "publications": {"icaia-mammography"},
+    "about":        {"identity", "focus", "values"},
+    "contact":      {"vcard", "channels"},
+    "design":       {"featured", "categories"},
 }
 
 # --------------------------------------------------------------------------- #
@@ -248,7 +264,12 @@ Strict shape:
 
 {
   "answer": "first-person conversational reply — 2-5 sentences typically, longer only if the question demands depth",
-  "scroll_to": "about" | "experience" | "skills" | "projects" | "publications" | "leadership" | "contact" | "journey" | null,
+  "scroll_to": "about" | "experience" | "skills" | "projects" | "publications" | "leadership" | "contact" | "journey" | "design" | null,
+  "focus": null | {
+      "cardId": "about" | "experience" | ...,
+      "sectionId": "tcs" | "synopsys" | "voicegraph" | ... | null,
+      "highlight": [string, ...]    // short exact phrases to pulse-underline in that section
+  },
   "component": null | {
       "type": "stats" | "timeline" | "cards" | "comparison" | "list" | "code" | "quote",
       "title": "string",
@@ -259,6 +280,18 @@ Strict shape:
 
 FIELD GUIDANCE
 - scroll_to: section on the portfolio most relevant to your answer. Use null if nothing fits.
+- focus: OPTIONAL. Richer version of scroll_to. Use this when a specific sub-section of a card is the real answer. The new lab UI scrolls to that sub-section and pulses any "highlight" phrases inside it.
+    Valid cardId+sectionId pairs:
+      experience:   nyuad, tcs, synopsys, esec
+      projects:     voicegraph, gybuddy, signalflow, virtual-war-room, pulse-nyc, agentic-rag
+      leadership:   gdsc, infoxpression, hackathons
+      skills:       languages, ai-ml, mobile, backend, frontend, infra
+      journey:      android, ml, agentic
+      publications: icaia-mammography
+      about:        identity, focus, values
+      contact:      vcard, channels
+      design:       featured, categories
+    Keep "highlight" to 1-4 SHORT, EXACT phrases that actually appear in the corresponding card text (e.g. ["2,600+ users", "99.2% uptime"]). Unknown sectionIds or phrases are ignored safely. If unsure, omit focus and set only scroll_to.
 - component: include ONLY when a visual genuinely aids understanding:
     stats      → 3+ quantitative datapoints  (items: [{label,value,sub}])
     timeline   → chronology                   (items: [{date,title,desc}])
@@ -361,6 +394,29 @@ def parse_output(raw: str | list | None) -> dict:
     else:
         data["component"] = None
 
+    # Richer focus payload — falls back to scroll_to if model omits it.
+    focus = data.get("focus")
+    if isinstance(focus, dict):
+        card = focus.get("cardId") or focus.get("card_id")
+        if card in SECTION_IDS:
+            clean = {"cardId": card}
+            sec = focus.get("sectionId") or focus.get("section_id")
+            if sec and sec in SUBSECTION_IDS.get(card, set()):
+                clean["sectionId"] = sec
+            hl = focus.get("highlight") or []
+            if isinstance(hl, list):
+                clean["highlight"] = [str(p)[:120] for p in hl if isinstance(p, str)][:6]
+            data["focus"] = clean
+        else:
+            data["focus"] = None
+    else:
+        data["focus"] = None
+
+    # If the model omitted focus but gave scroll_to, synthesize a minimal focus
+    # so the lab UI always has a command to act on.
+    if data["focus"] is None and data["scroll_to"]:
+        data["focus"] = {"cardId": data["scroll_to"]}
+
     data.setdefault("answer", "")
     data.setdefault("source", "profile")
     return data
@@ -374,6 +430,126 @@ def run(question: str, thread_id: str) -> dict:
     )
     last = result["messages"][-1]
     return parse_output(getattr(last, "content", ""))
+
+
+# --------------------------------------------------------------------------- #
+#                         STREAMING (SSE) RUNTIME                             #
+# --------------------------------------------------------------------------- #
+#
+# run_stream() yields a sequence of small dict events that the FastAPI layer
+# serialises as Server-Sent Events. The lab frontend interprets:
+#
+#   {"type": "thread",     "thread_id": "..."}
+#   {"type": "status",     "stage": "thinking" | "searching_profile"
+#                                   | "searching_web" | "tool_done"
+#                                   | "speaking" | "done"}
+#   {"type": "tool_call",  "name": "search_profile"|"search_web", "query": "..."}
+#   {"type": "ui_command", "action": "SET_ACTIVE_CARD",
+#                          "payload": {"cardId": "...",
+#                                      "sectionId": "..."?,
+#                                      "highlight": [...]?}}
+#   {"type": "text_delta", "content": "piece of answer text"}
+#   {"type": "component",  "data": {...}}
+#   {"type": "final",      "answer", "source", "scroll_to", "focus"}
+#   {"type": "error",      "message": "..."}
+#
+# Real-time status comes from LangGraph's async stream of intermediate
+# messages. The final answer from Gemini arrives in one shot (Gemini tool
+# calling buffers the final JSON), so we simulate token-by-token streaming
+# by chunking the parsed `answer` into small groups of words — this keeps
+# the UX responsive without changing the agent protocol.
+
+_TEXT_CHUNK_WORDS = 2      # words per text_delta chunk
+_TEXT_CHUNK_DELAY = 0.022  # seconds between chunks
+
+
+async def run_stream(question: str, thread_id: str) -> AsyncIterator[dict]:
+    """Async generator — yields streaming events for one user turn."""
+    config = {"configurable": {"thread_id": thread_id}}
+
+    try:
+        yield {"type": "status", "stage": "thinking"}
+
+        final_content = None
+        seen_tool_call_ids: set[str] = set()
+
+        async for state in app.astream(
+            {"messages": [HumanMessage(content=question)]},
+            config=config,
+            stream_mode="values",
+        ):
+            messages = state.get("messages", [])
+            if not messages:
+                continue
+            last = messages[-1]
+
+            # Surface newly-issued tool calls as status pings.
+            tool_calls = getattr(last, "tool_calls", None) or []
+            for tc in tool_calls:
+                tc_id = tc.get("id") or f"{tc.get('name')}::{json.dumps(tc.get('args', {}), sort_keys=True)}"
+                if tc_id in seen_tool_call_ids:
+                    continue
+                seen_tool_call_ids.add(tc_id)
+                name = tc.get("name", "")
+                args = tc.get("args", {}) or {}
+                query = args.get("query", "")
+                if name == "search_profile":
+                    yield {"type": "tool_call", "name": name, "query": query, "role": args.get("role") or None}
+                    yield {"type": "status", "stage": "searching_profile", "detail": query}
+                elif name == "search_web":
+                    yield {"type": "tool_call", "name": name, "query": query}
+                    yield {"type": "status", "stage": "searching_web", "detail": query}
+
+            # Capture the last AI message without tool calls — that's the final JSON.
+            if (
+                getattr(last, "type", None) == "ai"
+                and not tool_calls
+                and getattr(last, "content", None)
+            ):
+                final_content = last.content
+
+        if final_content is None:
+            yield {"type": "error", "message": "agent produced no final message"}
+            return
+
+        parsed = parse_output(final_content)
+
+        yield {"type": "status", "stage": "tool_done"}
+        yield {"type": "status", "stage": "speaking"}
+
+        # Emit the UI command FIRST so the card springs into place as the
+        # voice/text starts narrating it.
+        focus = parsed.get("focus")
+        if focus:
+            yield {
+                "type": "ui_command",
+                "action": "SET_ACTIVE_CARD",
+                "payload": focus,
+            }
+
+        # Stream the answer text in small word groups for a natural cadence.
+        answer = parsed.get("answer", "") or ""
+        words = answer.split(" ") if answer else []
+        for i in range(0, len(words), _TEXT_CHUNK_WORDS):
+            chunk = " ".join(words[i:i + _TEXT_CHUNK_WORDS])
+            piece = (" " if i > 0 else "") + chunk
+            yield {"type": "text_delta", "content": piece}
+            await asyncio.sleep(_TEXT_CHUNK_DELAY)
+
+        comp = parsed.get("component")
+        if comp:
+            yield {"type": "component", "data": comp}
+
+        yield {
+            "type": "final",
+            "answer": answer,
+            "source": parsed.get("source", "profile"),
+            "scroll_to": parsed.get("scroll_to"),
+            "focus": focus,
+        }
+        yield {"type": "status", "stage": "done"}
+    except Exception as e:  # pragma: no cover
+        yield {"type": "error", "message": f"agent error: {e}"}
 
 # --------------------------------------------------------------------------- #
 #                                  CLI                                        #

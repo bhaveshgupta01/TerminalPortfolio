@@ -1,63 +1,63 @@
-# Portfolio — local setup
+# Portfolio setup
 
-Two processes: **Vite frontend** and **FastAPI agent backend**.
-
-## 1. Backend (agent)
+## Run it
 
 ```bash
-cd backend
-python3 -m venv venv
-source venv/bin/activate
-pip install -r requirements.txt
-
-cp .env.example .env
-# paste your key into .env:   GOOGLE_API_KEY=...
-
-python ingest.py --reset      # builds ./chroma_db from knowledge/
-python server.py              # FastAPI on http://localhost:8000
-```
-
-Health check: `curl http://localhost:8000/health` → `{"status":"ok"}`
-
-Chat smoke test:
-```bash
-curl -sX POST http://localhost:8000/chat \
-  -H 'content-type: application/json' \
-  -d '{"question":"what did you build at TCS?"}' | jq
-```
-
-## 2. Frontend (Vite)
-
-```bash
-# from project root
-cp .env.local.example .env.local   # optional — only needed to override API URL
 npm install
-npm run dev                         # http://localhost:5173
+cp .env.local.example .env.local   # then paste your ANTHROPIC_API_KEY
+npm run dev                        # http://localhost:5173
 ```
 
-## 3. Deploy (later)
+The site works without a key; the chat then replies with a short "not switched on" message.
 
-- Frontend → Vercel (`libralpanda.vercel.app`). Set `VITE_AGENT_API` env var to the backend URL.
-- Backend → Railway / Render / Cloud Run (needs persistent disk for ChromaDB or swap to managed vector store).
+## Routes
 
-## Architecture
+| URL | What |
+|---|---|
+| `/` | Current site: the three-line scroll page (`src/pages/Story.jsx`) |
+| `/v1` | Original scrolling portfolio (`src/pages/Home.jsx`) |
+| `/v2` | Metallic card stack |
+| `/wallet`, `/lab` | Earlier card-stack drafts |
+| `/design` | Full design gallery |
 
-```
-Browser (React)
-    │   POST /chat { question, thread_id }
-    ▼
-FastAPI (backend/server.py)
-    ▼
-LangGraph agent (backend/agent.py)
-    ├─ classify         (Gemini: is this about Bhavesh?)
-    ├─ retrieve         (ChromaDB over knowledge/)       ── about-me path
-    ├─ generate_profile (Gemini, first-person JSON)
-    ├─ web_search       (DuckDuckGo)                      ── general path
-    └─ generate_web     (Gemini, first-person JSON)
-    ▼
-{ answer, scroll_to, component, source }
-```
+## Editing content
 
-## Knowledge updates
+Everything on the home page comes from `src/data/story.js`. The chat assistant builds
+its knowledge from the same file (`api/_profile.js`), so one edit updates both.
 
-Edit files in `backend/knowledge/`, then rerun `python ingest.py --reset`.
+## Chat
+
+`api/chat.js` is a single serverless function. Vercel deploys it with the site; in
+development Vite serves it through a small middleware in `vite.config.js`. There is
+no database and no second server.
+
+Deploy checklist:
+
+1. Vercel > Project > Settings > Environment Variables: add `ANTHROPIC_API_KEY`.
+2. Optional: add `CHAT_MODEL` to pick a different Claude model.
+3. Anthropic Console > Limits: set a monthly spend limit. This is the hard ceiling on cost.
+4. Redeploy, then ask the chat a question on the live site.
+
+Built-in protection: the key never reaches the browser, questions are capped at 600
+characters, replies are capped in length, and each visitor is limited to 12 questions
+per five minutes (per server instance, so treat it as a speed bump, not a wall).
+
+## Seeing what visitors ask
+
+Every question is written to the function logs as a `[chat-log]` line (Vercel > Project >
+Logs). Vercel only keeps those for a short time, so for a permanent record connect a
+database:
+
+1. Vercel > Project > Storage > Create > **Upstash for Redis** (free tier), connect it to
+   this project. Vercel adds `KV_REST_API_URL` and `KV_REST_API_TOKEN` for you.
+2. Add an `ADMIN_KEY` environment variable: any long random string.
+3. Redeploy. Your private log is at `/api/questions?key=<your ADMIN_KEY>`.
+
+With the database connected, the rate limit is also shared across all server instances.
+Visitors' IP addresses are not stored. The chat tells visitors that questions are saved.
+
+## Archived agent (`backend/`)
+
+The FastAPI + LangGraph + ChromaDB agent that powered the chat in `/v1` and `/v2` is
+kept in `backend/` but no longer deployed, so the chat in those versions shows its
+offline message. See `backend/README.md` if you want to run it locally.

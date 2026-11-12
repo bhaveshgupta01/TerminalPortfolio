@@ -226,6 +226,36 @@ const Home = () => {
         </div>
       </div>
 
+      {/* ===== VERSION SWITCHER (TOP RIGHT, DESKTOP) ===== */}
+      <div className="hidden md:flex fixed top-6 right-6 z-40 items-center gap-2">
+        <details className="group">
+          <summary className="glass-chip px-3 py-2 rounded-lg text-[13px] font-medium text-muted cursor-pointer hover:text-ink transition-colors list-none">
+            Versions ↓
+          </summary>
+          <div className="absolute top-12 right-0 bg-surface-2 rounded-lg border border-subtle shadow-lg overflow-hidden min-w-[160px]">
+            <a href="/" className="block px-4 py-2.5 text-[13px] hover:bg-accent/10 text-muted hover:text-ink">
+              Current site
+            </a>
+            <a href="/v1" className="block px-4 py-2.5 text-[13px] hover:bg-accent/10 text-ink font-medium">
+              ✓ v1 (original)
+            </a>
+            <a href="/wallet" className="block px-4 py-2.5 text-[13px] hover:bg-accent/10 text-muted hover:text-ink">
+              Wallet (draft)
+            </a>
+            <a href="/lab" className="block px-4 py-2.5 text-[13px] hover:bg-accent/10 text-muted hover:text-ink">
+              Lab (experimental)
+            </a>
+            <a href="/v2" className="block px-4 py-2.5 text-[13px] hover:bg-accent/10 text-muted hover:text-ink">
+              v2 (metallic)
+            </a>
+            <a href="/design" className="block px-4 py-2.5 text-[13px] hover:bg-accent/10 text-muted hover:text-ink">
+              Design Gallery
+            </a>
+          </div>
+        </details>
+        <ThemeToggle />
+      </div>
+
       {/* ===== MOBILE MENU OVERLAY ===== */}
       <AnimatePresence>
         {mobileMenuOpen && (
@@ -258,6 +288,24 @@ const Home = () => {
                   </button>
                 );
               })}
+
+              <div className="my-4 border-t border-subtle"></div>
+              <div className="px-4 py-2 text-[11px] text-faint uppercase tracking-wider font-bold">Versions</div>
+              <a href="/" className="flex items-center gap-3 px-4 py-3.5 rounded-xl text-muted hover:text-ink hover:bg-surface-2 transition-all text-left">
+                <span className="font-medium text-[15px]">Current site</span>
+              </a>
+              <a href="/v1" className="flex items-center gap-3 px-4 py-3.5 rounded-xl text-ink bg-accent/10 text-left">
+                <span className="font-medium text-[15px]">✓ v1 (original)</span>
+              </a>
+              <a href="/wallet" className="flex items-center gap-3 px-4 py-3.5 rounded-xl text-muted hover:text-ink hover:bg-surface-2 transition-all text-left">
+                <span className="font-medium text-[15px]">Wallet</span>
+              </a>
+              <a href="/lab" className="flex items-center gap-3 px-4 py-3.5 rounded-xl text-muted hover:text-ink hover:bg-surface-2 transition-all text-left">
+                <span className="font-medium text-[15px]">Lab</span>
+              </a>
+              <a href="/v2" className="flex items-center gap-3 px-4 py-3.5 rounded-xl text-muted hover:text-ink hover:bg-surface-2 transition-all text-left">
+                <span className="font-medium text-[15px]">v2 (Metallic)</span>
+              </a>
             </motion.div>
           </motion.div>
         )}

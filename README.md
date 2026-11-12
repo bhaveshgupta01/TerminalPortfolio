@@ -202,6 +202,8 @@ Current stable baseline: `v0.1.0`
 
 Rollback and release workflow: [docs/versioning.md](docs/versioning.md)
 
+Current implementation status and wallet roadmap: [docs/implementation-status.md](docs/implementation-status.md)
+
 ---
 
 ## Getting started
